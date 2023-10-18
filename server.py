@@ -18,7 +18,10 @@ logger.addHandler(consoleHandler)
 
 async def archive(request):
     response = web.StreamResponse()
-    await response.prepare(request)
+    response.enable_chunked_encoding()
+    response.headers['Content-Type'] = 'application/octet-stream'
+    response.headers['Content-Disposition'] = 'attachment'
+    response.headers['Transfer-Encoding'] = 'chunked'
 
     is_logging = os.getenv("LOGGING")
     is_delay = os.getenv("DELAY")
@@ -33,6 +36,7 @@ async def archive(request):
 
     if not os.path.exists(full_path):
         raise web.HTTPNotFound()
+    await response.prepare(request)
 
     proc = await asyncio.create_subprocess_exec(
         'zip', '-r', '-',  '.',
@@ -50,6 +54,7 @@ async def archive(request):
             await response.write(_stdout)
             if is_delay:
                 await asyncio.sleep(2)
+        await response.write_eof()
 
     except ConnectionResetError:
         logger.debug('Download was interrupted')
