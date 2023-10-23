@@ -55,11 +55,9 @@ async def archive(request, download_logging=None, delay=None, photo_folder_path=
     else:
         logger.info('Succes')
     finally:
-        try:
+        if proc.returncode is None:
             proc.kill()
             await proc.communicate()
-        except ProcessLookupError:
-            ...
 
     return response
 
