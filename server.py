@@ -24,7 +24,7 @@ async def archive(request, download_logging=None, delay=None, photo_folder_path=
     response.headers['Content-Disposition'] = 'attachment'
     response.headers['Transfer-Encoding'] = 'chunked'
 
-    archive_hash = request.match_info.get('archive_hash')
+    archive_hash = request.match_info['archive_hash']
 
     full_path = os.path.join(os.getcwd(), photo_folder_path, archive_hash)
 
