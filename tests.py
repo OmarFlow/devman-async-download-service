@@ -1,6 +1,8 @@
 from aiohttp import web
+from functools import partial
 
 from server import handle_index_page, archive
+from constans import DEFAULT_PHOTO_FOLDER_PATH
 
 
 async def test_index(aiohttp_client):
@@ -15,7 +17,8 @@ async def test_index(aiohttp_client):
 
 async def test_download(aiohttp_client):
     app = web.Application()
-    app.router.add_get('/archive/{archive_hash}/', archive)
+    p_archive = partial(archive, photo_folder_path=DEFAULT_PHOTO_FOLDER_PATH)
+    app.router.add_get('/archive/{archive_hash}/', p_archive)
     client = await aiohttp_client(app)
     resp = await client.get('/archive/7kna/')
     assert resp.status == 200
